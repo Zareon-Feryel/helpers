@@ -3,29 +3,28 @@ function GenerateEndpointFiles {
         [Parameter(Mandatory = $true)]
         [string]$Name
     )
-    # Constantes
+    # Constants
     $namespacePrefix = "Application.Features"
-    $commandsFolderName = "Commands"
-    $queriesFolderName = "Queries"
+    $categorySubFolders = @("Commands", "Queries") # This is an array of potential subfolders in your features folder (e.g. Commands, Queries)
 
     $currentDir = Get-Item .
     $folderName = $currentDir.Name
     $parentDir = $currentDir.Parent.Name
     $isSubFolder = $false
 
-    # Vérifier si le dossier courant est "Commands" ou "Queries"
-    if ($folderName -eq $commandsFolderName -or $folderName -eq $queriesFolderName) {
+    # Check if the current folder is a /Features subfolder
+    if ($categorySubFolders -contains $folderName) {
         $isSubFolder = $true
     }
 
-    # Créer le dossier
+    # Create the folder if it doesn't exist
     $folderPath = Join-Path -Path (Get-Location) -ChildPath $Name
     $isAllFilesCreated = $true
     if (-not (Test-Path -Path $folderPath)) {
         New-Item -ItemType Directory -Path $folderPath | Out-Null
-        Write-Host "Dossier '$Name' créé avec succès."
+        Write-Host "Folder '$Name' successfully created."
     } else {
-        Write-Host "Le dossier '$Name' existe déjà." -ForegroundColor Yellow
+        Write-Host "Folder '$Name' already exists." -ForegroundColor Yellow
         $isAllFilesCreated = $false
     }
 
@@ -35,8 +34,9 @@ function GenerateEndpointFiles {
         $namespacePrefix += ".$folderName"
     }
 
-    # Définir les fichiers et leur contenu
+    # Define files and their content
     $filesWithContent = @{
+        # Handler file
         "${Name}Handler.cs" = @"
 using MediatR;
 
@@ -54,11 +54,15 @@ public class ${Name}Handler : IRequestHandler<${Name}Request, ${Name}Response>
     }
 }
 "@;
+
+        # Response file
         "${Name}Response.cs" = @"
 namespace ${namespacePrefix}.${Name};
 
 public record ${Name}Response();
 "@;
+
+        # Request file
         "${Name}Request.cs" = @"
 using MediatR;
 
@@ -66,6 +70,8 @@ namespace ${namespacePrefix}.${Name};
 
 public record ${Name}Request() : IRequest<${Name}Response>;
 "@;
+
+        # Validator file
         "${Name}Validator.cs" = @"
 using FluentValidation;
 
@@ -80,23 +86,23 @@ public class ${Name}Validator : AbstractValidator<${Name}Request>
 "@
     }
 
-    # Créer les fichiers avec le contenu défini
+    # Create files with their content in the folder
     foreach ($file in $filesWithContent.Keys) {
         $filePath = Join-Path -Path $folderPath -ChildPath $file
         if (-not (Test-Path -Path $filePath)) {
             $content = $filesWithContent[$file] -replace '\${Name}', $Name
             Set-Content -Path $filePath -Value $content
-            Write-Host "Fichier '$file' créé avec son squelette."
+            Write-Host "File '$file' successfully created."
         } else {
-            Write-Host "Le fichier '$file' existe déjà." -ForegroundColor Yellow
+            Write-Host "File '$file' already exists." -ForegroundColor Yellow
             $isAllFilesCreated = $false
         }
     }
 
     if ($isAllFilesCreated) {
-        Write-Host "Tous les fichiers ont été créés dans le dossier '$folderPath'." -ForegroundColor Green
+        Write-Host "All files have been created in the folder '$folderPath'." -ForegroundColor Green
     } else {
-        Write-Host "Certains fichiers n'ont pas été créés." -ForegroundColor Yellow
+        Write-Host "Some files have not been created." -ForegroundColor Yellow
     }
 }
 Set-Alias -Name generate-endpoint -Value GenerateEndpointFiles
