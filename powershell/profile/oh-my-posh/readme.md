@@ -1,3 +1,3 @@
 # Oh My Posh
 
-(Setup)[./setup.ps1]
+[Setup](./setup.ps1)
