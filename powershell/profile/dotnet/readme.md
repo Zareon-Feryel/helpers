@@ -1,3 +1,3 @@
 # Dotnet helpers
 
-[Generate Endpoints](./generate-endpoints.ps1)
+[Generate Endpoint](./generate-endpoint.ps1)
