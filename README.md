@@ -15,6 +15,6 @@ After that, you can do the following command to update your powershell with new 
 . $PROFILE
 ```
 
-- [Oh my posh](./powershell/profile/oh-my-posh)
-- [.NET Helpers](./powershell/profile/dotnet)
-- [change-directory](./powershell/profile/change-directory.ps1)
+- [Oh my posh](./powershell/oh-my-posh)
+- [.NET Helpers](./powershell/dotnet)
+- [change-directory](./powershell/change-directory.ps1)
